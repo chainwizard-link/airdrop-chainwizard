@@ -1,0 +1,12 @@
+<div class="header-wallet"
+     (click)="selectWallet()"
+     *ngIf="currentAccount">
+  <img class="header-wallet_icon" [src]="currentAccount.icon" [title]="currentAccount.name">
+  <span class="header-wallet_address" [title]="currentAccount.address"
+        [ngClass]="{valid: currentAccount.valid === true, invalid: currentAccount.valid === false}">
+          <img [src]="networks[currentAccount.chainId]?.icon || './assets/images/icons/coins/undefined.svg'"
+               [title]="networks[currentAccount.chainId]?.name || 'Unknown network'"
+               class="header-wallet_address_icon">
+    {{ currentAccount.shortAddress }}
+        </span>
+</div>

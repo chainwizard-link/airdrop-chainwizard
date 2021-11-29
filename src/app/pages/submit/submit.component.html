@@ -1,0 +1,321 @@
+<div class="form_group">
+  <div class="form_group_content">
+
+
+    <div class="form_group_content_title">
+      <app-page-header></app-page-header>
+      <span class="form_group_content_title_link"
+            routerLink="/addresses">
+        Send Tokens
+      </span>
+    </div>
+
+    <div class="form_group_content_section">
+      <div class="form_control">
+        <div class="form_control_label">Network:</div>
+        <span class="network-info">
+          <img [src]="chainInfo.icon" class="network-info_icon">
+          <span class="network-info_name">
+            {{chainInfo.name}}
+          </span>
+        </span>
+      </div>
+    </div>
+    <div class="form_group_content_section">
+      <div class="form_controls-group enter-token-control">
+        <div class="form_control">
+          <div class="form_control_label">Token address</div>
+          <span class="text-control">
+            <span class="text-control_input">{{airdropParams.token.address}}</span>
+          </span>
+        </div>
+
+        <div class="form_control">
+          <div class="form_control_label text-center">Token symbol:</div>
+          <a class="text-control as-link"
+             [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
+             target="_blank">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
+                {{ airdropParams.token.symbol }}
+              </span>
+          </a>
+        </div>
+        <div class="form_control">
+          <div class="form_control_label">Decimals:</div>
+          <span class="text-control">
+              <div class="text-control_input text-center">
+                {{ airdropParams.token.decimals }}
+              </div>
+            </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-block" *ngIf="!account?.valid">
+      <div class="message-block_info">
+        <div class="message-block_info_text">
+            <span *ngIf="account && !account.valid">
+              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
+            </span>
+        </div>
+        <div class="message-block_info_buttons">
+          <button class="btn btn__success" (click)="selectWallet()">
+            <span class="btn_text">Connect wallet</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="airdropParams.deflationary && !isDeflationaryConfirmed && account?.valid && !isExcludedFromFee && tokensBalanceError?.code !== 2" >
+      <div><b>Token owner</b> must add <span style="color: #206eff; font-weight: 700">address of Airdrop contract</span> in <b>exludeFromFee</b> at the time of distribution</div>
+      <br>
+      <div style="opacity: .5">excludeFromFee <b>Airdrop contract address</b></div>
+      <br>
+
+      <span class="text-control">
+            <span class="text-control_input" style="width: 67%">{{airdropContract?.contractAddress}}</span>
+      </span>
+
+      <button class="btn btn__success"
+              style="margin: 20px 0"
+              (click)="confirmDeflationary()"
+              *ngIf="!airdropParams.completed && account?.valid">
+        <span class="lds-ellipsis" *ngIf="sendingInProgress">
+          <span class="lds-ellipsis_container">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </span>
+        <span  class="btn_text">Confirm</span>
+      </button>
+    </div>
+
+    <div *ngIf="airdropInfoData && !(!account?.valid || tokensBalanceError) && isDeflationaryConfirmed"
+         [ngClass]="{'with-errors': !airdropInfoData.transactionsCount}"
+         class="airdrop-info-block">
+
+      <span class="lds-ellipsis" *ngIf="getInformationProgress">
+        <span class="lds-ellipsis_container no-hide-content">
+          <span></span><span></span><span></span><span></span>
+        </span>
+      </span>
+
+
+      <div class="airdrop-info">
+        <div class="airdrop-info_item">
+          <div class="airdrop-info_item_value">
+            {{airdropInfoData.tokens | number}}
+          </div>
+          <div class="airdrop-info_item_label">Tokens</div>
+        </div>
+        <div class="airdrop-info_item">
+          <div class="airdrop-info_item_value">
+            {{airdropInfoData.addressesCount}}
+          </div>
+          <div class="airdrop-info_item_label">Addresses</div>
+        </div>
+        <div class="airdrop-info_item">
+          <div class="airdrop-info_item_value">
+            {{airdropInfoData.transactionsCount}}
+          </div>
+          <div class="airdrop-info_item_label">Transactions</div>
+        </div>
+        <div class="airdrop-info_item">
+          <div class="airdrop-info_item_value">
+            {{airdropInfoData.totalCost | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
+          </div>
+          <div class="airdrop-info_item_label">
+            Network fee
+          </div>
+        </div>
+        <div class="airdrop-info_item">
+          <div class="airdrop-info_item_value">
+            {{airdropInfoData.fee | number : '.0-2'}} <span>{{account.chainInfo.coin}}</span>
+          </div>
+          <div class="airdrop-info_item_label">
+            Platform fee
+          </div>
+        </div>
+      </div>
+      <div class="params-controls">
+        <div class="params-controls_item">
+          <div class="params-controls_label">
+            Token Balance
+          </div>
+          <div class="tokens-balance">
+            <div class="tokens-balance_text">
+              {{airdropInfoData.tokenBalance | bigNumberFormat : airdropParams.token.decimals}}
+            </div>
+            <div class="tokens-balance_token-label">
+              {{airdropParams.token.symbol}}
+            </div>
+            <div class="tokens-balance_line">
+              <div class="tokens-balance_line_progress" [style.width]="balancePercents + '%'"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'binance' || airdropParams.blockchain === 'polygon'">
+          <div class="params-controls_label">
+            Network speed (Gas price)
+          </div>
+          <div class="tokens-balance">
+            <div class="tokens-balance_text">
+              &nbsp;&nbsp;&nbsp;
+              <b>{{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="params-controls_item" *ngIf="airdropParams.blockchain === 'ethereum'">
+          <div class="params-controls_label">&nbsp;</div>
+          <div class="gas-price-control">
+            <div class="params-controls_label">Selected network speed (Gas Price)</div>
+            <div class="gas-price-control_value">
+              {{airdropInfoData.selectedGasPrice | bigNumberFormat : 9}}
+            </div>
+          </div>
+
+          <div class="custom-mat-slider">
+            <mat-slider class="custom"
+                        [disabled]="airdropParams.completed"
+                        [min]="airdropInfoData.gasPrices[0]"
+                        [max]="airdropInfoData.gasPrices[1]"
+                        step="500000000"
+                        value="{{airdropInfoData.selectedGasPrice}}"
+                        (input)="changeGasPrice($event)">
+            </mat-slider>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn__success width-100"
+              [disabled]="sendingInProgress"
+              (click)="startSending()"
+              *ngIf="!airdropParams.completed">
+        <span class="lds-ellipsis" *ngIf="sendingInProgress">
+          <span class="lds-ellipsis_container">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </span>
+        <span class="btn_text uppercase">Send</span>
+      </button>
+    </div>
+
+    <div *ngIf="!airdropParams.completed && (!account?.valid || tokensBalanceError)" class="airdrop-info-block">
+      <div class="message-block" *ngIf="(account?.valid && tokensBalanceError)">
+        <div class="message-block_info">
+          <div class="message-block_info_text">
+            <span [innerHTML]="tokensBalanceError.message"></span>
+          </div>
+
+          <app-approve
+            *ngIf="tokensBalanceError.code === 2"
+            [token]="airdropParams.token"
+            [amount]="approveTokens.toString(10) | bigNumberFormat : this.airdropParams.token.decimals"
+            [(approveType)]="approveType"></app-approve>
+
+          <div class="message-block_info_buttons">
+            <button class="btn btn__success"
+                    *ngIf="tokensBalanceError.code === 2" (click)="approveLeftTransferTokens()"
+                    [disabled]="errApproveInProgress">
+
+              <span class="lds-ellipsis" *ngIf="errApproveInProgress">
+                <span class="lds-ellipsis_container">
+                  <span></span><span></span><span></span><span></span>
+                </span>
+              </span>
+              <span class="btn_text">Approve</span>
+            </button>
+            <button class="btn btn__success" (click)="selectWallet()"
+                    *ngIf="tokensBalanceError.code === 1 || tokensBalanceError.code === 3"
+                    [disabled]="errApproveInProgress">
+              <span class="btn_text">Connect wallet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="message-block" *ngIf="!account?.valid  && isDeflationaryConfirmed">
+        <div class="message-block_info">
+          <div class="message-block_info_text">
+            <span *ngIf="account && !account.valid">
+              Please select <b>{{chainInfo.name}}</b> in the connected wallet or switch to another wallet
+            </span>
+          </div>
+          <div class="message-block_info_buttons">
+            <button class="btn btn__success" (click)="selectWallet()">
+              <span class="btn_text">Connect wallet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length && distributedInfo && isDeflationaryConfirmed">
+  <div class="form_group_content">
+    <div class="distributed">
+      <div class="distributed_label">
+        Distributed
+      </div>
+      <div class="distributed_progress">
+        <div class="distributed_progress_fill" [style.width]="distributedInfo.percent + '%'">
+          {{distributedInfo.distributed | bigNumberFormat : airdropParams.token.decimals}}
+        </div>
+      </div>
+      <div class="distributed_progress-limits">
+        <span>0</span>
+        <span>{{distributedInfo.full | bigNumberFormat : airdropParams.token.decimals}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="form_group" *ngIf="airdropInfoData.transactionsCount && transactionsList.length && isDeflationaryConfirmed">
+  <div class="form_group_content">
+    <div class="form_group_content_title">
+      Distribution
+    </div>
+
+    <div class="tx-list">
+      <cdk-virtual-scroll-viewport itemSize="59" minBufferPx="1000" maxBufferPx="1500"
+                                   [style.maxHeight]="transactionsList.length > 10 ? 590 : transactionsList.length * 59 + 'px'"
+                                   class="tx-list_scroll">
+        <div *cdkVirtualFor="let oneItem of transactionsList;"
+             class="tx-list_scroll_row">
+          <div class="tx-list_scroll_cell tx-list_scroll_cell__indexes">
+            {{oneItem.startAddressIndex}}-{{oneItem.finishAddressIndex}}
+          </div>
+
+          <div class="tx-list_scroll_cell tx-list_scroll_cell__tx-link">
+            <a *ngIf="oneItem.txHash"
+               target="_blank"
+               [href]="oneItem.txHash | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'tx'">
+<!--              {{oneItem.txHash}}-->
+              <span>Transaction Hash</span>
+            </a>
+          </div>
+<!-- (click)="sendTokens(oneItem)"-->
+          <div class="tx-list_scroll_cell tx-list_scroll_cell__state">
+            <span *ngIf="oneItem.state === 0">
+              Send
+<!--              <span class="send-btn"></span>-->
+            </span>
+            <span *ngIf="oneItem.state === 1">
+              Pending
+            </span>
+            <span *ngIf="oneItem.state === 2" class="success">
+              Success
+            </span>
+            <span *ngIf="oneItem.state === 3">
+              <b>Error</b>
+            </span>
+          </div>
+        </div>
+      </cdk-virtual-scroll-viewport>
+    </div>
+
+  </div>
+</div>

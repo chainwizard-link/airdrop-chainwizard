@@ -1,0 +1,63 @@
+a, button, input {
+  outline: none;
+  font-family: inherit;
+}
+
+a {
+  color: #206EFF;
+  text-decoration: none;
+  &.dashed {
+    border-bottom: 1px dotted;
+  }
+  &:hover {
+    color: #357afc;
+  }
+  &:active {
+    color: #1a58cb;
+  }
+}
+
+input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+input:focus::placeholder {
+  color: transparent;
+}
+
+.content {
+  padding: 0 5%;
+  &_wrapper {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.page-wrapper {
+  padding: 102px 0 50px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.h1, .h2 {
+  font-weight: bold;
+  font-size: 25px;
+  line-height: 1.12em;
+}
+.uppercase {
+  text-transform: uppercase;
+}
+
+.blue-text {
+  color: #206EFF;
+}

@@ -1,0 +1,47 @@
+
+.header-wallet {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  float: right;
+  font-size: 14px;
+  font-weight: normal;
+  &_icon {
+    height: 20px;
+    margin-right: 4px;
+  }
+  &_address {
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    &:hover {
+      opacity: 1;
+    }
+    &.valid {
+      &:after {
+        background-color: #17ba14;
+        box-shadow: 0 0 3px #25dc20;
+      }
+    }
+    &.invalid {
+      &:after {
+        background-color: #aa0000;
+      }
+    }
+    &:after {
+      content: '';
+      display: inline-block;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      margin-left: 10px;
+    }
+    &_icon {
+      height: 20px;
+      margin-right: 5px;
+      vertical-align: middle;
+      position: relative;
+    }
+  }
+}

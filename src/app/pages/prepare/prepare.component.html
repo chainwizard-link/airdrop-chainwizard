@@ -1,0 +1,293 @@
+<form class="form" #airdropForm="ngForm" (ngSubmit)="proceedAirdrop()">
+
+  <div class="form_group">
+    <div class="form_group_content">
+      <div class="form_group_content_title">
+        <app-page-header></app-page-header>
+        Airdrop setup
+      </div>
+      <div class="form_group_content_section">
+        <div class="form_controls-group">
+          <div class="form_control choose-blockchain-control">
+            <div class="form_control_label">
+              Select blockchain
+            </div>
+
+            <div class="form_control_buttons">
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="ethereum"
+                       name="blockchain">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/ethereum.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Ethereum
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="binance">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/binance.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Binance
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control">
+                <input type="radio" class="radio-control_input" name="blockchain"
+                       required
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="polygon">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/polygon.svg" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Polygon
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control" data-coming-soon="Coming Soon">
+                <input type="radio" class="radio-control_input" name="blockchain_dis"
+                       required
+                       disabled
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="avalanche">
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/avalanche.svg" height="28px" width="24px" class="radio-control_content_icon">
+                  <span class="radio-control_content_text">
+                    Avalanche
+                  </span>
+                </span>
+              </label>
+
+              <label class="radio-control" data-coming-soon="Coming Soon">
+                <input type="radio" class="radio-control_input" name="blockchain_dis"
+                       required
+                       disabled
+                       [(ngModel)]="airdropParams.blockchain"
+                       value="harmoney"
+                       >
+                <span class="radio-control_content">
+                  <img src="./assets/images/icons/coins/harmony.svg" class="radio-control_content_icon"  height="28px" width="24px">
+                  <span class="radio-control_content_text">
+                    Harmony
+                  </span>
+                </span>
+              </label>
+
+            </div>
+          </div>
+          <div class="form_control testnet-control">
+            <div class="form_control_label">
+              {{ airdropParams.blockchain ? testNets[airdropParams.blockchain] : "Test Network"}}
+            </div>
+            <div class="form_control_buttons">
+              <label class="checkbox-control">
+                <input type="checkbox"
+                       [(ngModel)]="airdropParams.testnet"
+                       class="checkbox-control_input"
+                       name="testnet"/>
+                <span class="checkbox-control_text checkbox-control_text__on">Yes</span>
+                <span class="checkbox-control_text checkbox-control_text__off">No</span>
+                <span class="checkbox-control_rect"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form_group_content_section">
+        <div class="form_controls-group enter-token-control">
+          <div class="form_control">
+            <div class="form_control_label">
+              Enter token address
+            </div>
+            <span class="text-control"
+                  [ngClass]="{
+                  'text-control__error': airdropParams.token?.address && (airdropForm.controls.token?.errors || !airdropParams.blockchain),
+                  'text-control__pending': airdropForm.controls.token?.pending
+                  }">
+              <input class="text-control_input" type="text"
+                     style="font-size: 13px"
+                     spellcheck="false"
+                     appTokenInput
+                     autocomplete="off"
+                     required="required"
+                     placeholder="0xd123575d94a7ad9bff3ad037ae9d4d52f41a7518"
+                     [readonly]="airdropForm.controls.token?.pending"
+                     [(ngModel)]="airdropParams.token"
+                     name="token">
+
+              <span class="lds-ellipsis text-control_waiting">
+                <span class="lds-ellipsis_container">
+                  <span></span><span></span><span></span><span></span>
+                </span>
+              </span>
+            </span>
+          </div>
+
+          <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
+            <div class="form_control_label text-center">
+              Token symbol:
+            </div>
+            <a class="text-control as-link"
+               [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
+               target="_blank">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
+                {{ airdropParams.token.symbol }}
+              </span>
+            </a>
+          </div>
+          <div class="form_control" *ngIf="airdropForm.controls.token?.valid && airdropParams.blockchain">
+            <div class="form_control_label">
+              Decimals:
+            </div>
+            <div class="text-control">
+              <div class="text-control_input text-center">
+                {{ airdropParams.token.decimals }}
+              </div>
+            </div>
+          </div>
+          <div class="form_control testnet-control">
+            <div class="form_control_label">
+              {{ "Deflationary" }}
+            </div>
+            <div class="form_control_buttons">
+              <label class="checkbox-control">
+                <input type="checkbox"
+                       [(ngModel)]="airdropParams.deflationary"
+                       class="checkbox-control_input"
+                       name="deflationary"/>
+                <span class="checkbox-control_text checkbox-control_text__on">Yes</span>
+                <span class="checkbox-control_text checkbox-control_text__off">No</span>
+                <span class="checkbox-control_rect"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form_control form_control__error"
+             *ngIf="airdropParams.token?.address && !airdropForm.controls.token?.pending && (airdropForm.controls.token?.errors || !airdropParams.blockchain)">
+
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.valid && !airdropParams.blockchain">
+            No network selected
+          </div>
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.errors?.invalidAddress">
+            Wrong address
+          </div>
+          <div class="form_control__error_text"
+               *ngIf="airdropForm.controls.token?.errors?.invalidContractAddress">
+            Token address is not valid
+          </div>
+
+        </div>
+      </div>
+
+      <div class="form_group_content_section">
+        <div class="form_control">
+          <div class="form_control_label">
+            Upload distribution list in .csv format
+          </div>
+          <label class="file-control" [ngClass]="{'file-control__error': csvData.error}">
+            <span class="file-control_button">
+              Upload CSV file
+            </span>
+            <span class="file-control_text" *ngIf="!airdropParams.fileName">
+              Enter list of addresses
+            </span>
+            <span class="file-control_text file-control_text__black"
+                  [title]="airdropParams.fileName"
+                  *ngIf="airdropParams.fileName">
+              {{this.airdropParams.fileName}}
+              <span class="file-control_text_additional" *ngIf="csvData.changed">
+                (edited)
+              </span>
+            </span>
+            <input type="file" class="file-control_input"
+                   [(ngModel)]="airdropParams.addresses"
+                   (change)="parseCsvFile($event.target)"
+                   accept=".csv"
+                   name="addresses">
+
+          </label>
+
+          <div class="after-file-control">
+            <div class="form_control form_control__error" [hidden]="!csvData.error">
+              <div class="form_control__error_text">
+                Incorrect file. Check with a sample file.
+              </div>
+            </div>
+
+            <div class="example-link text-right">
+              <a [href]="selectChainState?.csvExample || './assets/csv-examples/ethereum.csv'" target="_blank" class="dashed">
+                Sample file
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form_group">
+    <button class="btn btn__success width-100" type="sumbit" [disabled]="!airdropForm.valid || csvData.error">
+      <span class="btn_text">Proceed</span>
+    </button>
+  </div>
+
+  <a href="#tutorial" class="how-it-work_btn">
+    <span class="how-it-work_btn_text">How it works</span>
+    <img src="./assets/images/how-it-work-btn.svg">
+  </a>
+  <a id="tutorial"></a>
+</form>
+
+
+<div class="youtube-video">
+  <!-- <iframe width="100%" height="396" src=""
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe> -->
+</div>
+
+<div
+  class="subscribe__row subscribe__row--nw hide-eos-theme hide-tron-theme show-binance-theme"
+>
+      <span>
+        <a href="mailto:support@chainwizard.io" target="_blank">
+          <img src="/assets/images/icons/subscribe/support.svg" alt="support" />
+        </a>
+      </span>
+      <span>
+        <a href="https://twitter.com/chainwizardplatform" target="_blank">
+          <img src="/assets/images/icons/subscribe/twitter.svg" alt="twitter" />
+        </a>
+      </span>
+      <span>
+        <a href="https://t.me/chainwizard_platform" target="_blank">
+          <img src="/assets/images/icons/subscribe/telegram.svg" alt="telegram" />
+        </a>
+      </span>
+      <span>
+        <a href="https://www.youtube.com/c/chainwizardplatform" target="_blank">
+          <img src="/assets/images/icons/subscribe/youtube.svg" alt="youtube" />
+        </a>
+      </span>
+      <span>
+        <a href="https://www.facebook.com/chainwizard.io/" target="_blank">
+          <img src="/assets/images/icons/subscribe/facebook.svg" alt="facebook" />
+        </a>
+      </span>
+</div>
+
+

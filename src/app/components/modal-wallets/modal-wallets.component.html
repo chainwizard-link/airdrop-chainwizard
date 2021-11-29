@@ -1,0 +1,15 @@
+<div class="wallets">
+  <div class="wallets-title">
+    Choose your wallet
+  </div>
+  <ul class="wallets-list">
+    <li class="wallets-list_item"
+        [ngClass]="{disabled: !wallet.isAvailable}"
+        *ngFor="let wallet of data.wallets"
+        [title]="wallet.name"
+        (click)="wallet.isAvailable ? data.onSelectWallet(wallet) : $event.preventDefault()">
+      <img class="wallets-list_item_icon"
+           [src]="wallet.icon"/>
+    </li>
+  </ul>
+</div>

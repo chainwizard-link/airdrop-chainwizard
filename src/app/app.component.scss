@@ -1,0 +1,37 @@
+.top-banner {
+  //background-color: #ffffff;
+  margin-bottom: 25px;
+  //margin-top: 25px;
+  line-height: 50px;
+  padding: 19px 70px;
+  position: relative;
+  &_text {
+    font-size: 18px;
+    color: #727272;
+    line-height: 25px;
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+  }
+
+  &:after {
+    width: 42px;
+    height: 54px;
+    background: url('/assets/images/banners/right-drop.svg') center center no-repeat;
+    right: 15px;
+    top: -5px;
+  }
+  &:before {
+    width: 76px;
+    height: 96px;
+    background: url('/assets/images/banners/left-drop.svg') center center no-repeat;
+    left: 0;
+    top: -20px;
+  }
+  &:after, &:before {
+    content: '';
+    position: absolute;
+    background-size: contain;
+  }
+}

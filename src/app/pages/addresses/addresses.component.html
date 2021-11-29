@@ -1,0 +1,186 @@
+<div class="form_group">
+  <div class="form_group_content">
+    <div class="form_group_content_title">
+      <app-page-header></app-page-header>
+      <span class="form_group_content_title_link" routerLink="/edit">
+        Distribution list
+      </span>
+    </div>
+    <div class="form_group_content_section">
+      <div class="form_control">
+        <div class="form_control_label">Network:</div>
+        <span class="network-info">
+          <img [src]="chainInfo.icon" class="network-info_icon">
+          <span class="network-info_name">
+            {{chainInfo.name}}
+          </span>
+        </span>
+      </div>
+    </div>
+    <div class="form_group_content_section">
+      <div class="form_controls-group enter-token-control">
+        <div class="form_control">
+          <div class="form_control_label">Token address</div>
+          <span class="text-control">
+            <span class="text-control_input">{{airdropParams.token.address}}</span>
+          </span>
+        </div>
+
+        <div class="form_control">
+          <div class="form_control_label text-center">Token symbol:</div>
+          <a class="text-control as-link"
+             [href]="airdropParams.token.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'token'"
+             target="_blank">
+              <span class="text-control_input text-center" [ngStyle]="{'padding-top': airdropParams.token.symbol.length >= 8 ? '8px' : ''}">
+                {{ airdropParams.token.symbol }}
+              </span>
+          </a>
+        </div>
+        <div class="form_control">
+          <div class="form_control_label">Decimals:</div>
+          <span class="text-control">
+              <div class="text-control_input text-center">
+                {{ airdropParams.token.decimals }}
+              </div>
+            </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form_group_content_section">
+      <div class="addresses-table" *ngIf="tableData.valid.length">
+        <div class="addresses-table_header">
+          <button class="addresses-table_slide-btn"
+                  [ngClass]="{'addresses-table_slide-btn__opened': visibleValidTable}"
+                  (click)="visibleValidTable = !visibleValidTable;"></button>
+          <button class="addresses-table_show-all-btn" (click)="visibleValidTable = !visibleValidTable">
+            {{ !visibleValidTable ? 'Show all' : 'Hide all' }}
+          </button>
+          <div class="addresses-table_title">
+            Correct
+            <span class="addresses-table_title_count">
+              {{this.tableData.valid.length || 0}}
+            </span>
+          </div>
+        </div>
+
+
+        <div class="addresses-table_list" *ngIf="visibleValidTable">
+          <div class="addresses-table_list_head">
+            <div class="addresses-table_list_head_cell addresses-table_list_head_cell__line">
+              Line in file
+            </div>
+            <div class="addresses-table_list_head_cell addresses-table_list_head_cell__line">
+              Address
+            </div>
+            <div class="addresses-table_list_head_cell addresses-table_list_head_cell__line">
+              Amount
+            </div>
+          </div>
+
+          <div class="addresses-table_success">
+            <cdk-virtual-scroll-viewport itemSize="59" minBufferPx="1000" maxBufferPx="1500"
+                                         [style.maxHeight]="tableData.valid.length > 6 ? 354 : tableData.valid.length * 59 + 'px'"
+                                         class="addresses-list">
+              <div *cdkVirtualFor="let oneItem of tableData.valid;" class="addresses-list_row">
+                <div class="addresses-list_cell addresses-list_cell__line">
+                  #{{oneItem.line}}
+                </div>
+                <a class="addresses-list_cell addresses-list_cell__address"
+                   target="_blank"
+                   [href]="oneItem.address | explorerUrl : airdropParams.blockchain : airdropParams.testnet : 'address'">
+                  {{oneItem.address}}
+                </a>
+                <div class="addresses-list_cell addresses-list_cell__amount">
+                  {{oneItem.amount}}
+                </div>
+              </div>
+            </cdk-virtual-scroll-viewport>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form_group_content_section" *ngIf="tableData.invalid.length">
+      <div class="addresses-table addresses-table__errors">
+        <div class="addresses-table_header">
+          <button class="addresses-table_slide-btn"
+                  [ngClass]="{'addresses-table_slide-btn__opened': visibleInValidTable}"
+                  (click)="visibleInValidTable = !visibleInValidTable;"></button>
+          <button class="addresses-table_delete-all-btn" (click)="deleteAllErrors()">
+            Delete all
+          </button>
+          <div class="addresses-table_title">
+            Errors
+            <span class="addresses-table_title_count">
+              {{tableData.invalid.length || 0}}
+            </span>
+          </div>
+        </div>
+
+        <div class="addresses-table_errors" *ngIf="visibleInValidTable">
+
+          <cdk-virtual-scroll-viewport itemSize="86" minBufferPx="1000" maxBufferPx="1500"
+                                       [style.maxHeight]="tableData.invalid.length > 5 ? 430 : tableData.invalid.length * 86 + 'px'"
+                                       class="addresses-list addresses-list__error">
+            <div *cdkVirtualFor="let oneItem of tableData.invalid;" class="addresses-table_errors_item">
+              <form class="error-form" #itemForm="ngForm" (ngSubmit)="applyAddressItem(oneItem)">
+                <div class="error-form_message">
+                  Line: {{oneItem.line}};
+                  <span class="error-form_message_only-errors">
+                    <span *ngFor="let err of oneItem.errors">
+                    &nbsp;{{errorsMessages[err]}};
+                  </span>
+                </span>
+                </div>
+
+                <div class="error-form_controls">
+                  <div class="error-form_controls_cell error-form_controls_cell__address">
+                    <input type="text" [(ngModel)]="oneItem.address"
+                           name="address"
+                           spellcheck="false"
+                           required
+                           appAddressInput
+                           [validator]="addressValidator"
+                           placeholder="Recipient address"
+                           class="error-form_input">
+                  </div>
+                  <div class="error-form_controls_cell error-form_controls_cell__amount">
+                    <input type="text" [(ngModel)]="oneItem.amount"
+                           name="amount"
+                           appNumberInput
+                           [min]="1"
+                           [decimals]="airdropParams.token.decimals"
+                           spellcheck="false"
+                           required
+                           placeholder="Amount"
+                           class="error-form_input">
+                  </div>
+                  <div class="error-form_controls_cell error-form_controls_cell__button">
+                    <button class="error-form_btn error-form_btn__success" type="submit"
+                            [disabled]="itemForm.invalid">
+                      <img src="./assets/images/icons/checkmark.svg">
+                    </button>
+                    <button class="error-form_btn error-form_btn__delete" type="button"
+                            (click)="deleteInvalidItem(oneItem, true)">
+                      <img src="./assets/images/icons/cross.svg">
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </cdk-virtual-scroll-viewport>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="form_group">
+  <button class="btn btn__success width-100" (click)="approveToken()">
+    <span class="btn_text">
+      {{'Proceed'}}
+    </span>
+  </button>
+</div>
+

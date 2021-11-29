@@ -1,0 +1,25 @@
+<div class="radio-list">
+  <div class="radio-list_item">
+    <label class="normal-radio">
+      <input class="normal-radio_input" type="radio"
+             (ngModelChange)="approveTypeChange.emit($event)"
+             [(ngModel)]="approveType" value="unlimited">
+      <span class="normal-radio_mask"></span>
+      <span class="normal-radio_label">
+        Unlimited amount
+      </span>
+    </label>
+  </div>
+
+  <div class="radio-list_item">
+    <label class="normal-radio">
+      <input class="normal-radio_input" type="radio"
+             (ngModelChange)="approveTypeChange.emit($event)"
+             [(ngModel)]="approveType" value="limited">
+      <span class="normal-radio_mask"></span>
+      <span class="normal-radio_label">
+        Exact amount to be sent: {{amount}} {{token.symbol}}
+      </span>
+    </label>
+  </div>
+</div>
